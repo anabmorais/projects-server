@@ -23,7 +23,7 @@ const cors         = require('cors');
 // IF YOU STILL DIDN'T, GO TO 'configs/passport.js' AND UN-COMMENT OUT THE WHOLE FILE
 
 mongoose
-  .connect('mongodb://localhost/project-management-server', {useNewUrlParser: true})
+  .connect('mongodb://localhost/project-server', {useNewUrlParser: true})
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   })
@@ -60,6 +60,7 @@ app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
 // USE passport.initialize() and passport.session() HERE:
+
 
 
 // default value for title local

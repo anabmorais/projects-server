@@ -1,24 +1,45 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+const admin = require('firebase-admin');
+
+const serviceAccount = require("../configs/fireBase_Key.json");
+
 
 const Project = require('../models/project-model');
 const Task = require('../models/task-model'); // <== !!!
 
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://myfirstfirebaseproject-d5f4b.firebaseio.com"
+});
+
 // POST route => to create a new project
 router.post('/projects', (req, res, next) => {
-  const { title, description } = req.body;
-  Project.create({
-    title,
-    description,
-    tasks: []
-  })
-    .then(response => {
-      res.json(response);
-    })
-    .catch(err => {
-      res.json(err);
-    });
+  if (req.headers.authorization) {
+    admin.auth().verifyIdToken(req.headers.authorization)
+      .then((decodedToken) => {
+        console.log('decoded token', decodedToken);
+        const { title, description} = req.body;
+        Project.create({
+          title,
+          description,
+          tasks: [],
+          owner: decodedToken.uid
+        })
+          .then(response => {
+            res.json(response);
+          })
+          .catch(err => {
+            res.json(err);
+          });
+      }).catch(() => {
+        res.status(403).json({message: 'Unauthorized'});
+      });
+  } else {
+    res.status(403).json({message: 'Unauthorized'});
+  }
 });
 
 // GET route => to get all the projects
